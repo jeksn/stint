@@ -1,0 +1,125 @@
+
+.settings-container {
+  width: 100%;
+  height: 100%;
+  background-color: #262626;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+}
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #404040;
+}
+
+.settings-header h2 {
+  font-size: 17px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.settings-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 0;
+}
+
+.settings-group {
+  margin-bottom: 32px;
+}
+
+.settings-group h3 {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6e6e73;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 8px 0;
+  padding: 0 24px;
+}
+
+.setting-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  min-height: 44px;
+}
+
+.setting-info {
+  flex: 1;
+  margin-right: 16px;
+}
+
+.setting-info label {
+  font-size: 15px;
+  font-weight: 400;
+  color: #ffffff;
+  display: block;
+}
+
+.setting-description {
+  font-size: 13px;
+  color: #999999;
+  margin: 2px 0 0 0;
+  line-height: 1.4;
+}
+
+/* Settings window buttons */
+.settings-container .done-btn {
+  background-color: #007aff;
+  color: #ffffff;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.settings-container .done-btn:hover {
+  background-color: #0051d5;
+}
+
+/* Native macOS toggle button */
+.toggle-btn {
+  position: relative;
+  width: 51px;
+  height: 31px;
+  background-color: #e5e5ea;
+  border-radius: 16px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  outline: none;
+}
+
+.toggle-btn.on {
+  background-color: #34c759;
+}
+
+.toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 27px;
+  height: 27px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-btn.on .toggle-thumb {
+  transform: translateX(20px);
+}
+
+.toggle-btn:focus-visible {
+  outline: 2px solid #007AFF;
+  outline-offset: 2px;
+}
