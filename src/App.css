@@ -1,0 +1,154 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: #000000;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #ffffff;
+  -webkit-app-region: drag;
+  padding: 30px;
+
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+  -webkit-app-region: drag;
+}
+
+.app {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #000000;
+  padding: 30px;
+  -webkit-app-region: drag;
+  border-radius: 16px;
+}
+
+button {
+  -webkit-app-region: no-drag;
+}
+
+.draggable-area {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+  cursor: grab;
+  -webkit-app-region: drag;
+}
+
+.timer-display {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  color: #ffffff;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.minutes {
+  font-size: 64px;
+  font-weight: 300;
+  line-height: 1;
+}
+
+.seconds {
+  font-size: 32px;
+  font-weight: 300;
+  line-height: 1;
+}
+
+.time-label {
+  font-size: 16px;
+  font-weight: 500;
+  margin: 0 2px;
+  opacity: 0.7;
+}
+
+.presets, .controls, .settings {
+  -webkit-app-region: no-drag;
+}
+
+.presets {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.preset-btn {
+  background: transparent;
+  border: 1px solid #444;
+  color: #fff;
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.preset-btn:hover:not(:disabled) {
+  background: #222;
+  border-color: #666;
+}
+
+.preset-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.control-btn {
+  background: #fff;
+  border: none;
+  color: #000;
+  padding: 8px 20px;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 6px;
+  font-weight: 600;
+  min-width: 80px;
+}
+
+.control-btn:hover:not(:disabled) {
+  background: #e0e0e0;
+}
+
+.control-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.settings {
+  margin-top: 8px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  color: #999;
+}
+
+.checkbox-label input {
+  cursor: pointer;
+}
