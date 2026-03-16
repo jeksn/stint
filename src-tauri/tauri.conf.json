@@ -13,8 +13,11 @@
       {
         "label": "main",
         "title": "Stint",
-        "width": 400,
-        "height": 300
+        "width": 500,
+        "height": 400,
+        "minWidth": 400,
+        "minHeight": 350,
+        "resizable": true
       },
       {
         "label": "settings",

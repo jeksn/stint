@@ -4,11 +4,20 @@ import "./Settings.css";
 
 function Settings() {
   const [alwaysOnTop, setAlwaysOnTop] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [themeMode, setThemeMode] = useState<'light' | 'dark' | 'system'>('system');
   
   // Load settings from localStorage
   useEffect(() => {
     const savedAlwaysOnTop = localStorage.getItem('alwaysOnTop') === 'true';
+    const savedSoundEnabled = localStorage.getItem('soundEnabled') !== 'false';
+    const savedNotificationsEnabled = localStorage.getItem('notificationsEnabled') !== 'false';
+    const savedThemeMode = (localStorage.getItem('themeMode') as 'light' | 'dark' | 'system') || 'system';
     setAlwaysOnTop(savedAlwaysOnTop);
+    setSoundEnabled(savedSoundEnabled);
+    setNotificationsEnabled(savedNotificationsEnabled);
+    setThemeMode(savedThemeMode);
     
     // Sync settings with main window
     const channel = new BroadcastChannel('stint-settings');
@@ -75,6 +84,44 @@ function Settings() {
     }
   };
 
+  const toggleSound = () => {
+    const newValue = !soundEnabled;
+    setSoundEnabled(newValue);
+    localStorage.setItem('soundEnabled', newValue.toString());
+    
+    // Broadcast change
+    const channel = new BroadcastChannel('stint-settings');
+    channel.postMessage({
+      type: 'updateSound',
+      soundEnabled: newValue
+    });
+    channel.close();
+  };
+
+  const toggleNotifications = () => {
+    const newValue = !notificationsEnabled;
+    setNotificationsEnabled(newValue);
+    localStorage.setItem('notificationsEnabled', newValue.toString());
+    
+    // Broadcast change
+    const channel = new BroadcastChannel('stint-settings');
+    channel.postMessage({
+      type: 'updateNotifications',
+      notificationsEnabled: newValue
+    });
+    channel.close();
+  };
+
+  const applyTheme = (mode: 'light' | 'dark' | 'system') => {
+    // Broadcast change
+    const channel = new BroadcastChannel('stint-settings');
+    channel.postMessage({
+      type: 'updateTheme',
+      themeMode: mode
+    });
+    channel.close();
+  };
+
   const closeSettings = async () => {
     console.log("Attempting to close settings...");
     try {
@@ -131,9 +178,54 @@ function Settings() {
                 Play a sound when the timer completes
               </p>
             </div>
-            <button className="toggle-btn on">
+            <button
+              onClick={toggleSound}
+              className={`toggle-btn ${soundEnabled ? 'on' : 'off'}`}
+              title={soundEnabled ? 'Disable sound' : 'Enable sound'}
+            >
               <span className="toggle-thumb"></span>
             </button>
+          </div>
+          <div className="setting-item">
+            <div className="setting-info">
+              <label>Notifications</label>
+              <p className="setting-description">
+                Show system notifications when timer completes
+              </p>
+            </div>
+            <button
+              onClick={toggleNotifications}
+              className={`toggle-btn ${notificationsEnabled ? 'on' : 'off'}`}
+              title={notificationsEnabled ? 'Disable notifications' : 'Enable notifications'}
+            >
+              <span className="toggle-thumb"></span>
+            </button>
+          </div>
+        </div>
+
+        <div className="settings-group">
+          <h3>Appearance</h3>
+          <div className="setting-item">
+            <div className="setting-info">
+              <label>Theme</label>
+              <p className="setting-description">
+                Choose light, dark, or system preference
+              </p>
+            </div>
+            <select
+              value={themeMode}
+              onChange={(e) => {
+                const mode = e.target.value as 'light' | 'dark' | 'system';
+                setThemeMode(mode);
+                localStorage.setItem('themeMode', mode);
+                applyTheme(mode);
+              }}
+              className="theme-select"
+            >
+              <option value="system">System</option>
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+            </select>
           </div>
         </div>
       </div>

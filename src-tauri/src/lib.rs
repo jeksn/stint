@@ -8,7 +8,9 @@ pub fn run() {
         .setup(|app| {
             let show = MenuItemBuilder::with_id("show", "Show Timer").build(app)?;
             let hide = MenuItemBuilder::with_id("hide", "Hide Timer").build(app)?;
-            let settings = MenuItemBuilder::with_id("settings", "Settings...").build(app)?;
+            let settings = MenuItemBuilder::with_id("settings", "Settings...")
+                .accelerator("CmdOrControl+,")
+                .build(app)?;
             let separator = MenuItemBuilder::with_id("separator", "-").build(app)?;
             let quit = MenuItemBuilder::with_id("quit", "Quit").build(app)?;
             
@@ -114,3 +116,7 @@ async fn open_settings(app: AppHandle) -> Result<(), String> {
     }
     Ok(())
 }
+
+
+
+

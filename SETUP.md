@@ -9,7 +9,7 @@ A polished Tauri v2 Pomodoro timer with native macOS integration.
 - **Always on Top Toggle**: Keep the timer visible while working
 - **System Tray Integration**: Menubar icon with Show/Hide/Quit options
 - **Native Notifications**: macOS notification when timer completes
-- **Gong Sound**: Meditation-style sound when timer ends
+- **Chime Sound**: Meditation-style sound when timer ends
 - **Quick Presets**: 10, 15, 20, 30, 45, 60 minute options
 - **Timer Controls**: Start, Pause, Reset
 
@@ -21,16 +21,16 @@ A polished Tauri v2 Pomodoro timer with native macOS integration.
 pnpm install
 ```
 
-### 2. Add Gong Sound File
+### 2. Add Chime Sound File
 
-The app expects a gong sound file at `/public/gong.mp3`. You need to:
+The app expects a chime sound file at `/public/chime.mp3`. You need to:
 
-1. Find or download a meditation gong sound (MP3 or WAV format)
-2. Place it at: `public/gong.mp3`
+1. Find or download a meditation chime sound (MP3 or WAV format)
+2. Place it at: `public/chime.mp3`
 
-**Recommended sources for gong sounds:**
-- [Freesound.org](https://freesound.org/search/?q=gong)
-- [Zapsplat](https://www.zapsplat.com/sound-effect-category/gongs/)
+**Recommended sources for chime sounds:**
+- [Freesound.org](https://freesound.org/search/?q=chime)
+- [Zapsplat](https://www.zapsplat.com/sound-effect-category/chimes/)
 - Any royalty-free sound library
 
 ### 3. Run Development Server
@@ -92,7 +92,7 @@ stint/
 │   │   └── default.json # Permissions configuration
 │   └── tauri.conf.json  # Window & app configuration
 └── public/
-    └── gong.mp3         # Timer completion sound (you add this)
+    └── chime.mp3         # Timer completion sound (you add this)
 ```
 
 ## Customization
@@ -116,7 +116,7 @@ Edit `src/App.css` - currently set to black background (#000) with white text (#
 ## Troubleshooting
 
 **Timer sound doesn't play:**
-- Ensure `public/gong.mp3` exists
+- Ensure `public/chime.mp3` exists
 - Check browser console for audio errors
 - macOS may require user interaction before playing audio
 

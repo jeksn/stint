@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { sendNotification } from "@tauri-apps/plugin-notification";
-import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
 
 const PRESETS = [2/60, 10, 15, 20, 30, 45, 60];
@@ -10,28 +9,48 @@ function App() {
   const [timeLeft, setTimeLeft] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [alwaysOnTop, setAlwaysOnTop] = useState(false);
+  const [opacity, setOpacity] = useState(100);
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [isComplete, setIsComplete] = useState(false);
   const intervalRef = useRef<number | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    audioRef.current = new Audio("/gong.mp3");
+    audioRef.current = new Audio("/chime.mp3");
     
     // Load settings from localStorage
     const savedAlwaysOnTop = localStorage.getItem('alwaysOnTop') === 'true';
+    const savedOpacity = parseInt(localStorage.getItem('opacity') || '100');
+    const savedSoundEnabled = localStorage.getItem('soundEnabled') !== 'false';
+    const savedNotificationsEnabled = localStorage.getItem('notificationsEnabled') !== 'false';
     setAlwaysOnTop(savedAlwaysOnTop);
+    setOpacity(savedOpacity);
+    setSoundEnabled(savedSoundEnabled);
+    setNotificationsEnabled(savedNotificationsEnabled);
     
-    // Apply always on top on load
-    if (savedAlwaysOnTop) {
-      getCurrentWindow().setAlwaysOnTop(true);
-    }
+    // Apply window settings on load
+    const applyWindowSettings = async () => {
+      if (savedAlwaysOnTop) {
+        getCurrentWindow().setAlwaysOnTop(true);
+      }
+    };
+    
+    applyWindowSettings();
     
     // Listen for settings changes
     const channel = new BroadcastChannel('stint-settings');
     channel.onmessage = (event) => {
       if (event.data.type === 'updateSettings') {
         setAlwaysOnTop(event.data.alwaysOnTop);
+        setOpacity(event.data.opacity);
+        setSoundEnabled(event.data.soundEnabled);
+        setNotificationsEnabled(event.data.notificationsEnabled);
         localStorage.setItem('alwaysOnTop', event.data.alwaysOnTop.toString());
+        localStorage.setItem('opacity', event.data.opacity.toString());
+        localStorage.setItem('soundEnabled', event.data.soundEnabled.toString());
+        localStorage.setItem('notificationsEnabled', event.data.notificationsEnabled.toString());
+        console.log('Settings updated:', event.data);
       }
     };
     
@@ -59,7 +78,7 @@ function App() {
           if (prev <= 1) {
             setIsRunning(false);
             setIsComplete(true);
-            playGong();
+            playChime();
             sendTimerNotification();
             // Reset animation after 1.5 seconds
             setTimeout(() => setIsComplete(false), 1500);
@@ -83,13 +102,48 @@ function App() {
   }, [isRunning, timeLeft]);
 
   
-  const playGong = () => {
-    if (audioRef.current) {
+  const playChime = () => {
+    if (audioRef.current && soundEnabled) {
       audioRef.current.play().catch((err) => console.error("Audio play failed:", err));
     }
   };
 
+  const applyTheme = (mode: 'light' | 'dark' | 'system') => {
+    // Check system preference if mode is 'system'
+    const isDark = mode === 'system' 
+      ? window.matchMedia('(prefers-color-scheme: dark)').matches
+      : mode === 'dark';
+    
+    if (isDark) {
+      // Dark mode
+      document.documentElement.style.setProperty('--bg-color', '38, 38, 38');
+      document.documentElement.style.setProperty('--text-color', '255, 255, 255');
+      document.documentElement.style.setProperty('--secondary-bg', '29, 29, 31');
+      document.documentElement.style.setProperty('--button-bg', '255, 255, 255');
+      document.documentElement.style.setProperty('--button-text', '0, 0, 0');
+      document.documentElement.style.setProperty('--border-color', '255, 255, 255');
+      document.documentElement.style.setProperty('--preset-bg', '255, 255, 255');
+      document.documentElement.style.setProperty('--preset-text', '0, 0, 0');
+      document.documentElement.style.setProperty('--time-label-opacity', '0.7');
+      document.documentElement.style.setProperty('--disabled-opacity', '0.3');
+    } else {
+      // Light mode
+      document.documentElement.style.setProperty('--bg-color', '242, 242, 247');
+      document.documentElement.style.setProperty('--text-color', '0, 0, 0');
+      document.documentElement.style.setProperty('--secondary-bg', '255, 255, 255');
+      document.documentElement.style.setProperty('--button-bg', '0, 0, 0');
+      document.documentElement.style.setProperty('--button-text', '255, 255, 255');
+      document.documentElement.style.setProperty('--border-color', '0, 0, 0');
+      document.documentElement.style.setProperty('--preset-bg', '38, 38, 38');
+      document.documentElement.style.setProperty('--preset-text', '255, 255, 255');
+      document.documentElement.style.setProperty('--time-label-opacity', '0.6');
+      document.documentElement.style.setProperty('--disabled-opacity', '0.2');
+    }
+  };
+
   const sendTimerNotification = async () => {
+    if (!notificationsEnabled) return;
+    
     try {
       await sendNotification({
         title: "Stint Complete",
@@ -116,16 +170,7 @@ function App() {
     setTimeLeft(0);
   };
 
-  const toggleAlwaysOnTop = async () => {
-    const newValue = !alwaysOnTop;
-    setAlwaysOnTop(newValue);
-    try {
-      await getCurrentWindow().setAlwaysOnTop(newValue);
-    } catch (err) {
-      console.error("Failed to set always on top:", err);
-    }
-  };
-
+  
   const openSettings = async () => {
     console.log('Settings button clicked');
     try {
@@ -147,7 +192,11 @@ function App() {
   };
 
   return (
-    <div className={`dark app ${isComplete ? 'complete' : ''}`}>
+    <div 
+      className={`dark app ${isComplete ? 'complete' : ''}`} 
+      data-always-on-top={alwaysOnTop}
+
+    >
       <div className="draggable-area">
         <div className="timer-display">
           <span className="minutes">{formatTime(timeLeft).minutes}</span>
@@ -171,18 +220,25 @@ function App() {
       </div>
 
       <div className="controls">
-        <button onClick={toggleTimer} disabled={timeLeft === 0} className="control-btn primary">
-          {isRunning ? "Pause" : "Start"}
+        <button onClick={toggleTimer} className="control-btn primary" disabled={timeLeft === 0} title={isRunning ? "Pause" : "Start"}>
+          {isRunning ? (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="6" y="4" width="4" height="16"/>
+              <rect x="14" y="4" width="4" height="16"/>
+            </svg>
+          ) : (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <polygon points="5 3 19 12 5 21 5 3"/>
+            </svg>
+          )}
         </button>
-        <button onClick={resetTimer} className="control-btn secondary">
-          Reset
-        </button>
-        <button onClick={openSettings} className="control-btn icon">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
-            <circle cx="12" cy="12" r="3"/>
+        <button onClick={resetTimer} className="control-btn secondary" title="Reset">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+            <path d="M3 3v5h5"/>
           </svg>
         </button>
+
       </div>
     </div>
   );

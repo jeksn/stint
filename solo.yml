@@ -1,0 +1,17 @@
+name: stint
+icon: null
+processes:
+  'pnpm: build':
+    command: pnpm run build
+    working_dir: null
+    auto_start: false
+    auto_restart: false
+    restart_when_changed: []
+    env: {}
+  'pnpm: dev':
+    command: pnpm run dev
+    working_dir: null
+    auto_start: true
+    auto_restart: false
+    restart_when_changed: []
+    env: {}

@@ -4,18 +4,59 @@
   box-sizing: border-box;
 }
 
+:root {
+  --bg-color: 38, 38, 38;
+  --text-color: 255, 255, 255;
+  --secondary-bg: 29, 29, 31;
+  --button-bg: 255, 255, 255;
+  --button-text: 0, 0, 0;
+  --border-color: 255, 255, 255;
+  --preset-bg: 255, 255, 255;
+  --preset-text: 0, 0, 0;
+  --control-primary: 0, 122, 255;
+  --time-label-opacity: 0.7;
+  --disabled-opacity: 0.3;
+}
+
 html, body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background-color: #262626;
+  background-color: rgb(var(--bg-color));
+  color: rgb(var(--text-color));
 }
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif;
-  color: #ffffff;
+  color: rgb(var(--text-color));
   -webkit-app-region: drag;
-  padding: 30px;
+  padding: 24px;
+}
+
+.timer-display {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  color: rgb(var(--text-color));
+  user-select: none;
+  -webkit-user-select: none;
+  /* font-family: "Apple Garamond", "Baskerville", "Times New Roman", serif; */
+}
+
+.minutes {
+  font-size: 72px;
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -2px;
+  color: rgb(var(--text-color));
+}
+
+.seconds {
+  font-size: 36px;
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -1px;
+  color: rgb(var(--text-color));
 }
 
 #root {
@@ -31,10 +72,25 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: #262626;
+  background-color: rgb(var(--bg-color));
   padding: 30px;
   -webkit-app-region: drag;
   border-radius: 16px;
+  position: relative;
+}
+
+.app::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 16px;
+  z-index: -1;
 }
 
 button {
@@ -64,6 +120,7 @@ button {
   font-weight: 300;
   line-height: 1;
   letter-spacing: -2px;
+  color: rgb(var(--text-color));
 }
 
 .seconds {
@@ -71,14 +128,16 @@ button {
   font-weight: 300;
   line-height: 1;
   letter-spacing: -1px;
+  color: rgb(var(--text-color));
 }
 
 .time-label {
   font-size: 16px;
   font-weight: 500;
   margin: 0 2px;
-  opacity: 0.7;
+  opacity: var(--time-label-opacity);
   letter-spacing: 0.5px;
+  color: rgb(var(--text-color));
 }
 
 .presets, .controls, .settings {
@@ -86,102 +145,116 @@ button {
 }
 
 .presets {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+  padding: 0 20px;
 }
 
 .preset-btn {
-  background: transparent;
-  border: 1px solid #444;
-  color: #fff;
-  padding: 6px 12px;
-  font-size: 12px;
+  background-color: rgba(var(--preset-bg), 0.9);
+  border: 1px solid rgba(var(--border-color), 0.2);
+  color: rgb(var(--preset-text));
+  width: 50px;
+  height: 50px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
 }
 
 .preset-btn:hover:not(:disabled) {
-  background: #222;
-  border-color: #666;
+  background-color: rgba(var(--preset-bg), 0.95);
+  border-color: rgba(var(--border-color), 0.3);
+  transform: scale(1.05);
+}
+
+.preset-btn:active:not(:disabled) {
+  transform: scale(0.95);
 }
 
 .preset-btn:disabled {
-  opacity: 0.4;
+  opacity: 0.3;
   cursor: not-allowed;
 }
 
 .controls {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 16px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 0 20px;
 }
 
 .control-btn {
-  padding: 8px 16px;
-  border-radius: 6px;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s ease;
-  border: none;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.control-btn.primary {
-  background-color: #007AFF;
-  color: #ffffff;
-}
-
-.control-btn.primary:hover:not(:disabled) {
-  background-color: #0056CC;
-  transform: translateY(-1px);
-}
-
-.control-btn.primary:active:not(:disabled) {
-  transform: translateY(0);
-  background-color: #004499;
-}
-
-.control-btn.secondary {
-  background-color: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.control-btn.secondary:hover:not(:disabled) {
-  background-color: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.3);
-  transform: translateY(-1px);
-}
-
-.control-btn.secondary:active:not(:disabled) {
-  transform: translateY(0);
-  background-color: rgba(255, 255, 255, 0.15);
-}
-
-.control-btn.icon {
-  background-color: transparent;
-  color: rgba(255, 255, 255, 0.7);
-  padding: 8px;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(var(--border-color), 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
+  backdrop-filter: blur(10px);
+}
+
+.control-btn.primary {
+  background-color: rgba(0, 122, 255, 0.8);
+  color: #ffffff;
+  border: none;
+  backdrop-filter: blur(10px);
+}
+
+.control-btn.primary:hover:not(:disabled) {
+  background-color: rgba(0, 86, 204, 0.9);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.control-btn.primary:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.control-btn.secondary {
+  background-color: rgba(var(--button-bg), 0.1);
+  color: rgb(var(--button-text));
+  border: 1px solid rgba(var(--border-color), 0.1);
+}
+
+.control-btn.secondary:hover:not(:disabled) {
+  background-color: rgba(51, 51, 51, 0.9);
+  color: #ffffff;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.control-btn.secondary:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.control-btn.icon {
+  background-color: rgba(var(--button-bg), 0.1);
+  color: rgb(var(--button-text));
+  border: 1px solid rgba(var(--border-color), 0.1);
 }
 
 .control-btn.icon:hover:not(:disabled) {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(51, 51, 51, 0.9);
   color: #ffffff;
-  transform: translateY(-1px);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .control-btn.icon:active:not(:disabled) {
-  transform: translateY(0);
+  transform: scale(0.95);
 }
 
 .control-btn:disabled {
