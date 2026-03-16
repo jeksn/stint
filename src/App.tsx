@@ -9,7 +9,6 @@ function App() {
   const [timeLeft, setTimeLeft] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [alwaysOnTop, setAlwaysOnTop] = useState(false);
-  const [opacity, setOpacity] = useState(100);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [isComplete, setIsComplete] = useState(false);
@@ -21,13 +20,15 @@ function App() {
     
     // Load settings from localStorage
     const savedAlwaysOnTop = localStorage.getItem('alwaysOnTop') === 'true';
-    const savedOpacity = parseInt(localStorage.getItem('opacity') || '100');
     const savedSoundEnabled = localStorage.getItem('soundEnabled') !== 'false';
     const savedNotificationsEnabled = localStorage.getItem('notificationsEnabled') !== 'false';
+    const savedThemeMode = (localStorage.getItem('themeMode') as 'light' | 'dark' | 'system') || 'system';
     setAlwaysOnTop(savedAlwaysOnTop);
-    setOpacity(savedOpacity);
     setSoundEnabled(savedSoundEnabled);
     setNotificationsEnabled(savedNotificationsEnabled);
+    
+    // Apply theme immediately
+    applyTheme(savedThemeMode);
     
     // Apply window settings on load
     const applyWindowSettings = async () => {
@@ -43,14 +44,21 @@ function App() {
     channel.onmessage = (event) => {
       if (event.data.type === 'updateSettings') {
         setAlwaysOnTop(event.data.alwaysOnTop);
-        setOpacity(event.data.opacity);
         setSoundEnabled(event.data.soundEnabled);
         setNotificationsEnabled(event.data.notificationsEnabled);
         localStorage.setItem('alwaysOnTop', event.data.alwaysOnTop.toString());
-        localStorage.setItem('opacity', event.data.opacity.toString());
         localStorage.setItem('soundEnabled', event.data.soundEnabled.toString());
         localStorage.setItem('notificationsEnabled', event.data.notificationsEnabled.toString());
         console.log('Settings updated:', event.data);
+      } else if (event.data.type === 'updateSound') {
+        setSoundEnabled(event.data.soundEnabled);
+        localStorage.setItem('soundEnabled', event.data.soundEnabled.toString());
+      } else if (event.data.type === 'updateTheme') {
+        localStorage.setItem('themeMode', event.data.themeMode);
+        applyTheme(event.data.themeMode);
+      } else if (event.data.type === 'updateNotifications') {
+        setNotificationsEnabled(event.data.notificationsEnabled);
+        localStorage.setItem('notificationsEnabled', event.data.notificationsEnabled.toString());
       }
     };
     
@@ -145,12 +153,18 @@ function App() {
     if (!notificationsEnabled) return;
     
     try {
+      // Send notification - let Tauri handle permissions
       await sendNotification({
         title: "Stint Complete",
         body: "Your session has ended! Nice work!",
       });
     } catch (err) {
-      console.error("Notification failed:", err);
+      // Silently handle all notification errors
+      // Disable notifications if they fail
+      if (notificationsEnabled) {
+        setNotificationsEnabled(false);
+        localStorage.setItem('notificationsEnabled', 'false');
+      }
     }
   };
 
