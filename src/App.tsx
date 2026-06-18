@@ -27,6 +27,7 @@ function App() {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [themeMode, setThemeMode] = useState<ThemeMode>("system");
+  const [windowOpacity, setWindowOpacity] = useState(1.0);
 
   const intervalRef = useRef<number | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -41,15 +42,22 @@ function App() {
       localStorage.getItem("notificationsEnabled") !== "false";
     const savedThemeMode =
       (localStorage.getItem("themeMode") as ThemeMode) || "system";
+    const savedOpacity = parseFloat(localStorage.getItem("windowOpacity") ?? "1");
 
     setAlwaysOnTop(savedAlwaysOnTop);
     setSoundEnabled(savedSoundEnabled);
     setNotificationsEnabled(savedNotificationsEnabled);
     setThemeMode(savedThemeMode);
+    setWindowOpacity(savedOpacity);
     applyTheme(savedThemeMode);
 
     if (savedAlwaysOnTop) {
       getCurrentWindow().setAlwaysOnTop(true);
+    }
+
+    // Apply saved opacity on startup
+    if (savedOpacity < 1.0) {
+      invoke("set_window_opacity", { opacity: savedOpacity }).catch(() => {});
     }
 
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -165,6 +173,12 @@ function App() {
     applyTheme(mode);
   };
 
+  const handleWindowOpacity = (value: number) => {
+    setWindowOpacity(value);
+    localStorage.setItem("windowOpacity", value.toString());
+    invoke("set_window_opacity", { opacity: value }).catch(() => {});
+  };
+
   const { minutes, seconds } = formatTime(timeLeft);
 
   return (
@@ -278,6 +292,17 @@ function App() {
                 <option value="light">Light</option>
                 <option value="dark">Dark</option>
               </select>
+            </SettingRow>
+            <SettingRow label="Opacity" description={`Window transparency (${Math.round(windowOpacity * 100)}%)`}>
+              <input
+                type="range"
+                min="0.1"
+                max="1"
+                step="0.05"
+                value={windowOpacity}
+                onChange={(e) => handleWindowOpacity(parseFloat(e.target.value))}
+                className="opacity-slider"
+              />
             </SettingRow>
           </section>
         </div>
